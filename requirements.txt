@@ -1,0 +1,11 @@
+allure-pytest
+allure_python_commons
+playwright
+pytest
+pytest_playwright
+pur
+pytest-xdist
+requests
+pytest-html
+python-dotenv
+pytest-rerunfailures
