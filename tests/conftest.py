@@ -7,7 +7,10 @@ from playwright.sync_api import Page
 from pages.login_page import Loginpage
 from pages.alerts_page import AlertsPage
 from pages.home_page import HomePage
+from api.alerts_api import AlertsApi
 from api.api_client import ApiClient
+from api.reset_api import ResetApi
+from api.scans_api import ScansApi
 from utils.constants import API_BASE_URL, LOGIN_ENDPOINT, API_USERNAME, API_PASSWORD
 
 PROJECT_ROOT = Path.cwd()
@@ -25,6 +28,12 @@ class Pages:
         self.policies_page = PoliciesPage(page)
         self.page = page  # Also provide direct access to the playwright page object
 
+class ApiServices:
+    def __init__(self, api_client: ApiClient):
+        self.alerts_api = AlertsApi(api_client)
+        self.scans_api = ScansApi(api_client)
+        self.reset_api = ResetApi(api_client)
+        self.client = api_client
 
 @pytest.fixture(scope="function")
 def initialize(request, playwright):
@@ -64,7 +73,6 @@ def page_setup(initialize: Page) -> Pages:
     # 'initialize' fixture now provides the playwright 'page' object
     return Pages(initialize)
 
-
 @pytest.fixture(scope="session")
 def api_context(playwright):
     login_context = playwright.request.new_context(base_url=API_BASE_URL)
@@ -97,6 +105,12 @@ def api_context(playwright):
 @pytest.fixture()
 def api_client(api_context):
     return ApiClient(api_context)
+
+@pytest.fixture()
+def api_setup(api_client) -> ApiServices:
+    services = ApiServices(api_client)
+    yield services
+    services.reset_api.reset_environment()
 
 
 @pytest.hookimpl(hookwrapper=True)
