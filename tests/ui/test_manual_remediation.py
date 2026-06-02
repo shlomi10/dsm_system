@@ -39,3 +39,4 @@ class TestManualRemediation:
                 self.logger.info("Resetting environment")
                 page_setup.home_page.select_the_policies_tab()
                 page_setup.policies_page.reset_environment()
+
