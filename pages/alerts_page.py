@@ -2,7 +2,7 @@ import allure
 from playwright.sync_api import Page, Locator
 
 from pages.base_page import BasePage
-
+from utils.constants import RESOLUTION_COMMENT
 
 @allure.severity(allure.severity_level.CRITICAL)
 @allure.story("alerts page")
@@ -18,7 +18,6 @@ class AlertsPage(BasePage):
     AUTO_REMEDIATE_OFF = "OFF"
     SECURITY_ANALYST = "Security Analyst"
     REMEDIATION_NOTE = "Manual remediation completed by Security Analyst"
-    RESOLUTION_COMMENT = "Remediation verified successfully and issue is resolved"
 
     REMEDIATION_TIMEOUT = 80000
     NOTIFICATION_TIMEOUT = 15000
@@ -128,7 +127,7 @@ class AlertsPage(BasePage):
 
     @allure.step("Add resolved comment")
     def add_resolved_comment(self):
-        self.fill(self.comment_textarea, self.RESOLUTION_COMMENT)
+        self.fill(self.comment_textarea, RESOLUTION_COMMENT)
         self.click(self.post_comment_button)
         self.wait_for_notifications_to_disappear()
 
