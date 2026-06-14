@@ -135,7 +135,6 @@ Automated through REST API.
 Flow:
 
 ```text
-Reset environment
 Start scan
 Find alert where:
   Status = Open / Remediation In Progress
@@ -145,7 +144,7 @@ Change status to Resolved
 Add resolution comment
 Start another scan
 Verify no identical alert was recreated
-Reset environment
+Reset environment (fixture teardown)
 ```
 
 This test is marked as `xfail` because the assignment intentionally recreates the same alert after rescan.
@@ -160,7 +159,7 @@ tests/api/test_auto_remediation_rescan.py
 
 ### 3. API Component Tests
 
-Basic API validation for system endpoints.
+Basic API validation for system endpoints through API wrapper classes and the `api_setup` fixture.
 
 Covered examples:
 
@@ -170,6 +169,16 @@ Policy config
 Alerts endpoint
 Start scan endpoint
 Reset environment endpoint
+```
+
+Example usage:
+
+```python
+api_setup.health_api.get_health()
+api_setup.policy_api.get_policy_config()
+api_setup.alerts_api.get_alerts()
+api_setup.scans_api.start_scan()
+api_setup.reset_api.reset_environment()
 ```
 
 Test file:
@@ -187,6 +196,9 @@ dsm_system/
 ├── api/
 │   ├── api_client.py
 │   ├── alerts_api.py
+│   ├── auth_api.py
+│   ├── health_api.py
+│   ├── policy_api.py
 │   ├── reset_api.py
 │   └── scans_api.py
 ├── pages/
@@ -499,17 +511,21 @@ Responsibilities:
 - selectors are stored in page classes
 - reusable actions are stored in `BasePage`
 - UI test only describes the business flow
+- `page_setup` fixture groups all page objects for UI tests
 
 ---
 
 ### API Layer
 
-Uses API wrapper classes.
+Uses API wrapper classes. Each class owns its route path (`BASE` or `LOGIN`).
 
 ```text
 api/
 ├── api_client.py
 ├── alerts_api.py
+├── auth_api.py
+├── health_api.py
+├── policy_api.py
 ├── scans_api.py
 └── reset_api.py
 ```
@@ -520,6 +536,27 @@ Responsibilities:
 - `AlertsApi` handles alert lifecycle actions
 - `ScansApi` handles scan creation and scan polling
 - `ResetApi` handles environment cleanup
+- `HealthApi` handles health check requests
+- `PolicyApi` handles policy config requests
+- `AuthApi` defines the login route used by session authentication in `conftest.py`
+
+Tests use the `api_setup` fixture, which exposes an `ApiServices` object with all API wrappers (`alerts_api`, `scans_api`, `reset_api`, `health_api`, `policy_api`).
+
+---
+
+### Shared Configuration
+
+`utils/constants.py` holds environment-specific values only:
+
+```text
+BASE_URL
+API_BASE_URL
+API_USERNAME
+API_PASSWORD
+RESOLUTION_COMMENT
+```
+
+API route paths are not stored in `constants.py`; they live on the API wrapper classes.
 
 ---
 
@@ -532,6 +569,10 @@ API tests authenticate through:
 ```text
 POST /api/login
 ```
+
+The login route is defined as `AuthApi.LOGIN` in `api/auth_api.py`.
+
+Session authentication is configured in `tests/conftest.py` through the `api_context` fixture.
 
 Payload:
 
@@ -579,12 +620,12 @@ XFAIL
 
 ## 🧹 Cleanup
 
-Both lifecycle flows reset the system state after execution.
+Lifecycle tests reset the system state after execution.
 
 UI cleanup:
 
 ```text
-Reset environment through the frontend
+Reset environment through the frontend (try/finally in the UI test)
 ```
 
 API cleanup:
@@ -592,6 +633,8 @@ API cleanup:
 ```text
 POST /api/admin/reset
 ```
+
+API tests that use the `api_setup` fixture reset automatically in fixture teardown after each test.
 
 Payload:
 
@@ -623,8 +666,9 @@ addopts = -ra
 - API tests do not depend on the browser.
 - UI and API tests can be executed independently.
 - Runtime artifacts are generated automatically.
-- `.env` is used for environment-specific values.
-- Stable API endpoint paths are kept in `utils/constants.py`.
+- `.env` is used for environment-specific values through `utils/constants.py`.
+- API endpoint paths are defined on API wrapper classes, not in `constants.py`.
+- API lifecycle and component tests use the `api_setup` fixture; UI tests use `page_setup`.
 - The expected failing API lifecycle test is documented with `xfail`.
 
 ---
