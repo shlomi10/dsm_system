@@ -9,9 +9,12 @@ from pages.alerts_page import AlertsPage
 from pages.home_page import HomePage
 from api.alerts_api import AlertsApi
 from api.api_client import ApiClient
+from api.auth_api import AuthApi
+from api.health_api import HealthApi
+from api.policy_api import PolicyApi
 from api.reset_api import ResetApi
 from api.scans_api import ScansApi
-from utils.constants import API_BASE_URL, LOGIN_ENDPOINT, API_USERNAME, API_PASSWORD
+from utils.constants import API_BASE_URL, API_USERNAME, API_PASSWORD
 
 PROJECT_ROOT = Path.cwd()
 ARTIFACTS_DIR = PROJECT_ROOT / "reports"
@@ -33,6 +36,8 @@ class ApiServices:
         self.alerts_api = AlertsApi(api_client)
         self.scans_api = ScansApi(api_client)
         self.reset_api = ResetApi(api_client)
+        self.health_api = HealthApi(api_client)
+        self.policy_api = PolicyApi(api_client)
         self.client = api_client
 
 @pytest.fixture(scope="function")
@@ -78,7 +83,7 @@ def api_context(playwright):
     login_context = playwright.request.new_context(base_url=API_BASE_URL)
 
     login_response = login_context.post(
-        LOGIN_ENDPOINT,
+        AuthApi.LOGIN,
         data={
             "username": API_USERNAME,
             "password": API_PASSWORD,

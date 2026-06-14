@@ -1,17 +1,17 @@
 import time
 
-from utils.constants import SCANS_ENDPOINT
-
 
 class ScansApi:
+    BASE = "/api/scans"
+
     def __init__(self, api_client):
         self.api_client = api_client
 
     def start_scan(self):
-        return self.api_client.post(SCANS_ENDPOINT)
+        return self.api_client.post(self.BASE)
 
     def get_scans(self):
-        response = self.api_client.get(SCANS_ENDPOINT)
+        response = self.api_client.get(self.BASE)
         return response if isinstance(response, list) else response.get("scans", [])
 
     def wait_until_scan_finished(self, timeout: int = 60):

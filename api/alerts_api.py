@@ -1,14 +1,16 @@
 import time
 
-from utils.constants import ALERTS_ENDPOINT, RESOLUTION_COMMENT
+from utils.constants import RESOLUTION_COMMENT
 
 
 class AlertsApi:
+    BASE = "/api/alerts"
+
     def __init__(self, api_client):
         self.api_client = api_client
 
     def get_alerts(self):
-        response = self.api_client.get(ALERTS_ENDPOINT)
+        response = self.api_client.get(self.BASE)
         return response if isinstance(response, list) else response.get("alerts", [])
 
     def get_alert_id(self, alert: dict):
@@ -107,13 +109,13 @@ class AlertsApi:
 
     def resolve_alert(self, alert_id: str):
         return self.api_client.patch(
-            f"{ALERTS_ENDPOINT}/{alert_id}",
+            f"{self.BASE}/{alert_id}",
             {"status": "RESOLVED"}
         )
 
     def add_comment(self, alert_id: str):
         return self.api_client.post(
-            f"{ALERTS_ENDPOINT}/{alert_id}/comments",
+            f"{self.BASE}/{alert_id}/comments",
             {"message": RESOLUTION_COMMENT}
         )
 
