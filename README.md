@@ -1,6 +1,6 @@
 # 🛡️ DSM System Automation Framework
 
-![Python](https://img.shields.io/badge/Python-3.14+-3776AB?logo=python&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.15+-3776AB?logo=python&logoColor=white)
 ![Playwright](https://img.shields.io/badge/Playwright-UI%20Automation-2EAD33?logo=playwright&logoColor=white)
 ![Pytest](https://img.shields.io/badge/Pytest-Test%20Runner-0A9EDC?logo=pytest&logoColor=white)
 ![Allure](https://img.shields.io/badge/Allure-Test%20Reports-FF6A00?logo=allure&logoColor=white)
@@ -246,7 +246,7 @@ dsm_system/
 
 Install before running:
 
-- Python 3.14+
+- Python 3.15+
 - Docker Desktop
 - Git
 - Node.js / npm only if you want to use Allure CLI through npm
